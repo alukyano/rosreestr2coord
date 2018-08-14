@@ -32,7 +32,7 @@ def download_proxies(path=PROXY_PATH):
     f = urllib2.urlopen(request)
     pattern = r'\d*\.\d*\.\d*\.\d*\</a>:\d*'
     found = [i.replace('</a>', '') + '\n' for i in re.findall(pattern, f.read())]
-    dump_proxies_to_file(found[:20], path)  # 20 top proxies
+    dump_proxies_to_file(found[:30], path)  # 20 top proxies
 
 
 def load_proxies(path=PROXY_PATH):

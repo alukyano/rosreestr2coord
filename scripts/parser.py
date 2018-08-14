@@ -89,7 +89,7 @@ class Area:
     save_attrs = ["code", "area_type", "attrs", "image_path", "center", "extent", "image_extent", "width", "height"]
 
     def __init__(self, code="", area_type=1, epsilon=5, media_path="", with_log=True, catalog="",
-                 coord_out="EPSG:3857", center_only=False, with_proxy=False):
+                 coord_out="EPSG:3857", center_only=False, with_proxy=False, static_proxy="none"):
         self.with_log = with_log
         self.area_type = area_type
         self.media_path = media_path
@@ -109,6 +109,7 @@ class Area:
         self.code_id = ""
         self.file_name = self.code[:].replace(":", "_")
         self.with_proxy = with_proxy
+        self.static_proxy = static_proxy
 
         self.coord_out = coord_out
 
@@ -211,7 +212,7 @@ class Area:
         return False
 
     def make_request(self, url):
-        response = make_request(url, self.with_proxy)
+        response = make_request(url, self.with_proxy, self.static_proxy)
         return response
 
 

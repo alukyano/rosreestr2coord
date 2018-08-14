@@ -43,11 +43,13 @@ class TimeoutException(Exception):
     pass
 
 
-def make_request(url, with_proxy=False):
+def make_request(url, with_proxy=False, static_proxy="none"):
     # original function
     if url:
         url = url.encode('utf-8')
         logger.debug(url)
+        if static_proxy != 'none':
+            return make_request_with_static_proxy(url,static_proxy)
         if with_proxy:
             proxies = proxy_handling.load_proxies()
             if proxies and len(proxies) and proxies[0] != 'None':
@@ -60,6 +62,21 @@ def make_request(url, with_proxy=False):
             logger.warning(er)
             raise TimeoutException()
     return False
+
+def make_request_with_static_proxy(url,static_proxy):
+    if static_proxy != "none":     
+        try:
+            print('static proxy %s/r' % (static_proxy), end="")
+            auth = urllib2.HTTPBasicAuthHandler()
+            proxy_handler = urllib2.ProxyHandler({'http': static_proxy, 'https': static_proxy})
+            opener = urllib2.build_opener(proxy_handler, auth, urllib2.HTTPHandler)
+            urllib2.install_opener(opener)
+            conn = urllib2.urlopen(url)
+            read = conn.read()
+            return read
+        except Exception as er:
+            logger.warning(er)
+
 
 
 def make_request_with_proxy(url):

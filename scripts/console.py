@@ -55,6 +55,8 @@ def getopts():
                         help='Use only the center of area')
     parser.add_argument('-P', '--proxy', action='store_const', const=True, required=False,
                         help='use proxies')
+    parser.add_argument('-S', '--static', action='store', type=str, required=False,
+                        help='static proxy with auth')                        
     opts = parser.parse_args()
 
     return opts
@@ -73,6 +75,7 @@ def _main():
     opt = getopts()
     code = opt.code
     output = opt.output if opt.output else os.path.join("output")
+    static_proxy_val = opt.static if opt.static else "none"
     delay = getattr(opt, "delay", 1000)
     path = opt.path
     epsilon = opt.epsilon if opt.epsilon else 5
@@ -94,13 +97,15 @@ def _main():
                      output=output, file_name=file_name, with_attrs=with_attrs, delay=delay, center_only=center_only, with_proxy=opt.proxy)
 
     elif code:
-        get_by_code(code, path, area_type, catalog_path, with_attrs, epsilon, coord_out, output, display, center_only, with_proxy=opt.proxy)
+        get_by_code(code, path, area_type, catalog_path, with_attrs, epsilon, coord_out, output, display, center_only, 
+                    with_proxy=opt.proxy, static_proxy=static_proxy_val)
 
 
 def get_by_code(code, path, area_type, catalog_path, with_attrs=False, epsilon=5,
-                coord_out='EPSG:3857', output="output", display=False, center_only=False, with_log=True, with_proxy=False):
+                coord_out='EPSG:3857', output="output", display=False, center_only=False, with_log=True, 
+                with_proxy=False, static_proxy="none"):
     area = Area(code, media_path=path, area_type=area_type, epsilon=epsilon, with_log=with_log, catalog=catalog_path,
-                coord_out=coord_out, center_only=center_only, with_proxy=with_proxy)
+                coord_out=coord_out, center_only=center_only, with_proxy=with_proxy, static_proxy=static_proxy)
     abspath = os.path.abspath(output)
     geojson = area.to_geojson_poly(with_attrs=with_attrs)
     if geojson:
