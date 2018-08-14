@@ -11,7 +11,7 @@ import os
 from catalog import Catalog
 from export import coords2geojson
 from scripts.merge_tiles import PkkAreaMerger
-from utils import xy2lonlat, make_request, TimeoutException
+from utils import xy2lonlat, make_request, make_tile_request, TimeoutException
 
 try:
     import urlparse
@@ -89,7 +89,7 @@ class Area:
     save_attrs = ["code", "area_type", "attrs", "image_path", "center", "extent", "image_extent", "width", "height"]
 
     def __init__(self, code="", area_type=1, epsilon=5, media_path="", with_log=True, catalog="",
-                 coord_out="EPSG:3857", center_only=False, with_proxy=False, static_proxy="none"):
+                 coord_out="EPSG:3857", center_only=False, with_proxy=False, static_proxy="none", tile_mode="direct"):
         self.with_log = with_log
         self.area_type = area_type
         self.media_path = media_path
@@ -110,6 +110,7 @@ class Area:
         self.file_name = self.code[:].replace(":", "_")
         self.with_proxy = with_proxy
         self.static_proxy = static_proxy
+        self.tile_mode = tile_mode
 
         self.coord_out = coord_out
 
@@ -215,6 +216,10 @@ class Area:
         response = make_request(url, self.with_proxy, self.static_proxy)
         return response
 
+    def make_tile_request(self, url):
+        response = make_tile_request(url, self.tile_mode, self.static_proxy)
+        return response        
+
 
     def download_feature_info(self):
         try:
@@ -285,7 +290,7 @@ class Area:
             bbox = self.get_buffer_extent_list()    
             if bbox:
                 image = PkkAreaMerger(bbox=self.get_buffer_extent_list(), output_format=f, with_log=self.with_log,
-                                        clear_code=self.clear_code(self.code_id), output_dir=tmp_dir, make_request=self.make_request)
+                                        clear_code=self.clear_code(self.code_id), output_dir=tmp_dir, make_request=self.make_tile_request)
                 image.download()
                 self.image_path = image.merge_tiles()
                 self.width = image.real_width

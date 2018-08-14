@@ -22,7 +22,7 @@ def update_proxies(path=PROXY_PATH):
 
 
 def download_proxies(path=PROXY_PATH):
-    # Downloading without proxy
+    # Download proxy list
     opener = urllib2.build_opener(urllib2.ProxyHandler())
     urllib2.install_opener(opener)
     request = urllib2.Request('http://www.ip-adress.com/proxy_list/')

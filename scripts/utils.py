@@ -43,6 +43,25 @@ class TimeoutException(Exception):
     pass
 
 
+def make_tile_request(url, tile_mode="direct", static_proxy="none"):
+    if url:
+        url = url.encode('utf-8')
+        logger.debug(url)
+        if tile_mode == 'private' and static_proxy != 'none':
+            return make_request_with_static_proxy(url,static_proxy)
+        if tile_mode == 'public':
+            proxies = proxy_handling.load_proxies()
+            if proxies and len(proxies) and proxies[0] != 'None':
+                return make_request_with_proxy(url)
+        try:
+            f = urllib2.urlopen(url)
+            read = f.read()
+            return read
+        except Exception as er:
+            logger.warning(er)
+            raise TimeoutException()
+    return False
+
 def make_request(url, with_proxy=False, static_proxy="none"):
     # original function
     if url:
@@ -91,7 +110,7 @@ def make_request_with_proxy(url):
     for proxy in proxies:
         for i in range(1, tries+1):  # how many tries for each proxy
             try:
-                # print('%i iteration of proxy %s' % (i, proxy), end="")
+                print('%i iteration of proxy %s' % (i, proxy), end="")
                 proxy_handler = urllib2.ProxyHandler({'http': proxy, 'https': proxy})
                 opener = urllib2.build_opener(proxy_handler)
                 urllib2.install_opener(opener)

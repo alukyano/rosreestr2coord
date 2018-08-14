@@ -56,7 +56,9 @@ def getopts():
     parser.add_argument('-P', '--proxy', action='store_const', const=True, required=False,
                         help='use proxies')
     parser.add_argument('-S', '--static', action='store', type=str, required=False,
-                        help='static proxy with auth')                        
+                        help='static proxy with auth')        
+    parser.add_argument('-T', '--tilemode', action='store', type=str, required=False,
+                        help='default direct, possible values (direct,public,private)')                                            
     opts = parser.parse_args()
 
     return opts
@@ -76,6 +78,7 @@ def _main():
     code = opt.code
     output = opt.output if opt.output else os.path.join("output")
     static_proxy_val = opt.static if opt.static else "none"
+    tilemode = opt.tilemode if opt.tilemode else "direct"
     delay = getattr(opt, "delay", 1000)
     path = opt.path
     epsilon = opt.epsilon if opt.epsilon else 5
@@ -98,14 +101,14 @@ def _main():
 
     elif code:
         get_by_code(code, path, area_type, catalog_path, with_attrs, epsilon, coord_out, output, display, center_only, 
-                    with_proxy=opt.proxy, static_proxy=static_proxy_val)
+                    with_proxy=opt.proxy, static_proxy=static_proxy_val, tile_mode = tilemode)
 
 
 def get_by_code(code, path, area_type, catalog_path, with_attrs=False, epsilon=5,
                 coord_out='EPSG:3857', output="output", display=False, center_only=False, with_log=True, 
-                with_proxy=False, static_proxy="none"):
+                with_proxy=False, static_proxy="none", tile_mode="direct"):
     area = Area(code, media_path=path, area_type=area_type, epsilon=epsilon, with_log=with_log, catalog=catalog_path,
-                coord_out=coord_out, center_only=center_only, with_proxy=with_proxy, static_proxy=static_proxy)
+                coord_out=coord_out, center_only=center_only, with_proxy=with_proxy, static_proxy=static_proxy, tile_mode=tile_mode)
     abspath = os.path.abspath(output)
     geojson = area.to_geojson_poly(with_attrs=with_attrs)
     if geojson:
