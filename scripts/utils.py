@@ -66,13 +66,15 @@ def make_request(url, with_proxy=False, static_proxy="none"):
 def make_request_with_static_proxy(url,static_proxy):
     if static_proxy != "none":     
         try:
-            print('static proxy %s/r' % (static_proxy), end="")
+            print ("Using proxy: ", static_proxy)
+            logger.info("Using proxy: %s", static_proxy)
             auth = urllib2.HTTPBasicAuthHandler()
             proxy_handler = urllib2.ProxyHandler({'http': static_proxy, 'https': static_proxy})
             opener = urllib2.build_opener(proxy_handler, auth, urllib2.HTTPHandler)
             urllib2.install_opener(opener)
             conn = urllib2.urlopen(url)
             read = conn.read()
+#            print(read)
             return read
         except Exception as er:
             logger.warning(er)
