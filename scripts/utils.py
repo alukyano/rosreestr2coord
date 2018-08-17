@@ -21,7 +21,7 @@ import urllib2
 import socket
 # import urllib
 import math
-from logger import logger 
+from logger import logger
 
 
 def y2lat(y):
@@ -83,7 +83,7 @@ def make_request(url, with_proxy=False, static_proxy="none"):
     return False
 
 def make_request_with_static_proxy(url,static_proxy):
-    if static_proxy != "none":     
+    if static_proxy != "none":
         try:
             print ("Using proxy: ", static_proxy)
             logger.info("Using proxy: %s", static_proxy)
@@ -91,6 +91,7 @@ def make_request_with_static_proxy(url,static_proxy):
             proxy_handler = urllib2.ProxyHandler({'http': static_proxy, 'https': static_proxy})
             opener = urllib2.build_opener(proxy_handler, auth, urllib2.HTTPHandler)
             urllib2.install_opener(opener)
+#            logger.info("URL using proxy: %s", url)
             conn = urllib2.urlopen(url)
             read = conn.read()
 #            print(read)
@@ -128,4 +129,3 @@ def make_request_with_proxy(url):
                 removed = True
     if removed:
         proxy_handling.dump_proxies_to_file(proxies)
-
