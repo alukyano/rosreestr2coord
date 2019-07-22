@@ -1,6 +1,8 @@
 from __future__ import division, print_function
 import proxy_handling
+import urllib
 import urllib2
+import base64
 
 # Try to send request through a TOR
 # try:
@@ -36,7 +38,8 @@ def xy2lonlat(x, y):
     return [x2lon(x), y2lat(y)]
 
 
-USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
+REFERER = 'https://pkk5.rosreestr.ru/'
 
 
 class TimeoutException(Exception):
@@ -74,8 +77,12 @@ def make_request(url, with_proxy=False, static_proxy="none"):
             if proxies and len(proxies) and proxies[0] != 'None':
                 return make_request_with_proxy(url)
         try:
-            f = urllib2.urlopen(url)
-            read = f.read()
+            headers = {
+                'user-agent': USER_AGENT,
+                'referer': REFERER}
+            request = urllib2.Request(url, headers=headers)
+            conn = urllib2.urlopen(request)              
+            read = conn.read()
             return read
         except Exception as er:
             logger.warning(er)
@@ -85,19 +92,44 @@ def make_request(url, with_proxy=False, static_proxy="none"):
 def make_request_with_static_proxy(url,static_proxy):
     if static_proxy != "none":
         try:
-            print ("Using proxy: ", static_proxy)
-            logger.info("Using proxy: %s", static_proxy)
-            auth = urllib2.HTTPBasicAuthHandler()
-            proxy_handler = urllib2.ProxyHandler({'http': static_proxy, 'https': static_proxy})
-            opener = urllib2.build_opener(proxy_handler, auth, urllib2.HTTPHandler)
+            print ("Using static proxy: [", static_proxy, "]")
+            logger.info("Using static proxy: %s", static_proxy)
+#            auth = urllib2.HTTPBasicAuthHandler()
+            proxy =static_proxy.split("@")[1]
+#            auth_proxy = urllib2.ProxyBasicAuthHandler()
+            
+            proxy_handler = urllib2.ProxyHandler({'http': proxy, 'https': proxy})
+#            password_manager = urllib2.HTTPPasswordMgrWithDefaultRealm()
+            
+            user = static_proxy.split("@")[0]
+            user = user.split("/")[2]
+            user_enc = base64.b64encode(bytes(user))
+#            user1,pass1 = user.split(":")
+#            print ("user=",user1,pass1,proxy)
+#            password_manager.add_password(None, url, user1, pass1)
+#            auth_proxy.add_password(None, url, user1, pass1)
+#            auth_manager = urllib2.HTTPBasicAuthHandler(password_manager)
+            opener = urllib2.build_opener(proxy_handler, urllib2.HTTPHandler)
+#            opener = urllib2.build_opener(proxy_handler, urllib2.HTTPHandler)
             urllib2.install_opener(opener)
-#            logger.info("URL using proxy: %s", url)
-            conn = urllib2.urlopen(url)
-            read = conn.read()
-#            print(read)
+            headers = {
+                'user-agent': USER_AGENT,
+                'referer': REFERER,
+                'Proxy-Authorization': 'Basic ' + user_enc}
+
+            request = urllib2.Request(url, headers=headers)
+
+            conn = urllib2.urlopen(request,timeout=3)  
+#            logger.info("URL using static proxy: %s", url)
+            read = conn.read()            
             return read
+
+        except (urllib2.HTTPError, urllib2.URLError) as ex:
+                print ("URLERROR:", str(ex))
+                return
         except Exception as er:
             logger.warning(er)
+            print("Exception: ", er)
 
 
 
@@ -111,15 +143,16 @@ def make_request_with_proxy(url):
     for proxy in proxies:
         for i in range(1, tries+1):  # how many tries for each proxy
             try:
-                print('%i iteration of proxy %s' % (i, proxy), end="")
+                print('%i iteration of public proxy %s' % (i, proxy), end="")
                 proxy_handler = urllib2.ProxyHandler({'http': proxy, 'https': proxy})
                 opener = urllib2.build_opener(proxy_handler)
                 urllib2.install_opener(opener)
                 headers = {
-                    'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
-                    'referer': 'htpps://www.google.com/'}
+                    'user-agent': USER_AGENT,
+                    'referer': REFERER}
                 request = urllib2.Request(url, headers=headers)
-                f = urllib2.urlopen(request)
+                print("URL using public proxy: ", url)  
+                f = urllib2.urlopen(request,timeout=5)
                 read = f.read()
                 return read
             except Exception as er:
