@@ -13,6 +13,8 @@ from export import coords2geojson
 from scripts.merge_tiles import PkkAreaMerger
 from utils import xy2lonlat, make_request, make_tile_request, TimeoutException
 
+from datetime import datetime
+
 try:
     import urlparse
     from urllib import urlencode
@@ -82,6 +84,13 @@ def restore_area(restore, coord_out):
     area.restore(restore)
     return area
 
+def get_datetime():
+    # datetime object containing current date and time
+    now = datetime.now()
+    # dd/mm/YY H:M:S
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+    #print("date and time =", dt_string)
+    return dt_string
 
 class Area:
     image_url = IMAGE_URL
@@ -118,7 +127,11 @@ class Area:
         self.search_url = t.substitute({"area_type": area_type})
         t = string.Template(FEATURE_INFO_URL)
         self.feature_info_url = t.substitute({"area_type": area_type})
-        
+        # 03/10/19 alukyano - added current datetime stamping into log
+        curdate = get_datetime()
+        if self.with_log:
+            logger.info("request datetime - %s" % curdate)
+
         if not self.media_path:
             # self.media_path = os.path.dirname(os.path.realpath(__file__))
             self.media_path = os.getcwd()
