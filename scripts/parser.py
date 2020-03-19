@@ -30,13 +30,13 @@ except ImportError:  # For Python 3
 #   ?text=38:36:000021:1106
 #   &tolerance=4
 #   &limit=11
-SEARCH_URL = "http://pkk5.rosreestr.ru/api/features/$area_type"
+SEARCH_URL = "https://pkk.rosreestr.ru/api/features/$area_type"
 
 ############################
 # URL to get area metainfo #
 ############################
 # http://pkk5.rosreestr.ru/api/features/1/38:36:21:1106
-FEATURE_INFO_URL = "http://pkk5.rosreestr.ru/api/features/$area_type/"
+FEATURE_INFO_URL = "https://pkk.rosreestr.ru/api/features/$area_type/"
 
 #########################
 # URL to get area image #
@@ -56,7 +56,7 @@ FEATURE_INFO_URL = "http://pkk5.rosreestr.ru/api/features/$area_type/"
 #    "layerDefs" decode to {"6":"ID = '38:36:21:1106'","7":"ID = '38:36:21:1106'"}
 #    "f" may be `json` or `html`
 #    set `&format=svg&f=json` to export image in svg !closed by rosreestr, now only PNG
-IMAGE_URL = "http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/CadastreSelected/MapServer/export"
+IMAGE_URL = "https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/Cadastre/CadastreSelected/MapServer/export"
 
 TYPES = {
     u"Участки": 1,

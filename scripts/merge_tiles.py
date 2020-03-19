@@ -152,6 +152,7 @@ class TileMerger:
                 file_path = os.path.join(self.tile_dir, file_name)
                 if not self.use_cache or not os.path.isfile(file_path):
                     url = self.get_url(x, y, self.zoom)
+                    # self.log('Downloading tile from url %s' % url)
                     tile = self.make_request(url)
                     if tile:
                         self.write_image(tile, file_path)
@@ -203,53 +204,9 @@ class TileMerger:
                 imx += self.tile_size[0]
             path = os.path.join(self.output_dir, filename)
             out.save(path)
-            # self.create_raster_worldfile(path)
-            # self.create_prj_file(path)
             outpath = os.path.abspath(path)
             self.log('You raster - %s' % outpath)
             return outpath
-
-            # def create_raster_worldfile(self, path, xy_range=None):
-            #     from globalmaptiles import GlobalMercator
-            #     x_y = xy_range or self.xy_range
-            #     im = Image.open(path)
-            #     gw_path = ''.join(os.path.split(path)[-1].split('.')[:-1])
-            #     world_file_path = os.path.join(os.path.curdir, os.path.join(self.output_dir, "%s.jgw" % gw_path))
-            #     with open(world_file_path, 'w') as world:
-            #         min_y, min_x = num2deg(x_y['xMin'], x_y['yMax'] + 1, self.zoom)
-            #         max_y, max_x = num2deg(x_y['xMax'] + 1, x_y['yMin'], self.zoom)
-            #         gm = GlobalMercator()
-            #         min_x, min_y = gm.LatLonToMeters(min_y, min_x)
-            #         max_x, max_y = gm.LatLonToMeters(max_y, max_x)
-            #         x_pixel_size = (max_x - min_x) / im.size[0]
-            #         y_pixel_size = (max_y - min_y) / im.size[1]
-            #         world.write(b"%f\n" % x_pixel_size)  # pixel size in the x-direction in map units/pixel
-            #         world.write(b"%f\n" % 0)  # rotation about y-axis
-            #         world.write(b"%f\n" % 0)  # rotation about x-axis
-            #         world.write(b"%f\n" % -(abs(y_pixel_size)))  # pixel size in the y-direction in map units. Always negative
-            #         world.write(b"%f\n" % min_x)  # x-coordinate of the center of the upper left pixel
-            #         world.write(b"%f\n" % max_y)  # y-coordinate of the center of the upper left pixel
-            #
-            # def create_prj_file(self, path, crs=None):
-            #     crs = crs or self.crs
-            #     prj_str = {
-            #         4326: b"""
-            #         GEOGCS["GCS_WGS_1984",DATUM["D_WGS84",SPHEROID["WGS84",6378137,298.257223563]],
-            #         PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]]
-            #         """,
-            #         3857: b"""
-            #         PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",
-            #         SPHEROID["WGS_1984",6378137,0]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]],
-            #         PROJECTION["Mercator"],PARAMETER["central_meridian",0],PARAMETER["standard_parallel_1",0],
-            #         PARAMETER["false_easting",0],PARAMETER["false_northing",0],PARAMETER["Auxiliary_Sphere_Type",0],
-            #         UNIT["Meter",1]]
-            #         """
-            #     }
-            #     prj_path = ''.join(os.path.split(path)[-1].split('.')[:-1])
-            #     prj_file_path = os.path.join(os.path.curdir, os.path.join(self.output_dir, "%s.prj" % prj_path))
-            #     prj = open(prj_file_path, 'w')
-            #     prj.write(prj_str[crs])
-            #     prj.close()
 
     def log(self, msg):
         if self.with_log:
@@ -310,7 +267,8 @@ class GoogleMerger(UrlTileMerger):
 
 class PkkAreaMerger(TileMerger, object):
     file_name_prefix = 'pkk'
-    url = "http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/CadastreSelected/MapServer/export"
+    #   url = "http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/CadastreSelected/MapServer/export"
+    url = "https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/CadastreSelected/MapServer/export"
     crs = 3857
     tile_size = (1000, 1000)
     use_cache = False
@@ -383,8 +341,21 @@ class PkkAreaMerger(TileMerger, object):
                 dx, dy = self.tile_size
             code = self.clear_code
 
-            layers = map(str, range(0, 20))
+            # layers = map(str, range(0, 20))
+            layers = map(str, range(6, 9))
             params = {
+                "dpi": 96,
+                "transparent": "false",
+                "format": "PNG32",
+                "layers": "show:%s" % ",".join(layers),
+                "bbox": ",".join(map(str, self._get_bbox_by_xy(x, y))),
+                "bboxSR": 3857,
+                "imageSR": 3857,
+                "size": "%s,%s" % (dx, dy),
+                "layerDefs": {layer: str("ID='%s'" % code) for layer in layers},
+                "f": "json"
+            }
+            """params = {
                 "dpi": 96,
                 "transparent": "false",
                 "format": "png",
@@ -395,7 +366,7 @@ class PkkAreaMerger(TileMerger, object):
                 "size": "%s,%s" % (dx, dy),
                 "layerDefs": {layer: str("ID = '%s'" % code) for layer in layers},
                 "f": "json"
-            }
+            }"""
             if output_format:
                 params["format"] = output_format
             url_parts = list(urlparse.urlparse(self.url))
@@ -403,11 +374,14 @@ class PkkAreaMerger(TileMerger, object):
             query.update(params)
             url_parts[4] = urlencode(query)
             meta_url = urlparse.urlunparse(url_parts)
+            # logger.debug(query)
+            # self.log(query)
             if meta_url:
                 try:
                     response = self.make_request(meta_url)
                     data = json.loads(response)
-                    if data.get("href"):
+                    # self.log(data)
+                    if data.get("contentType"):
                         self._image_extent_list.append(data.get("extent"))
                         return meta_url.replace("f=json", "f=image")
                     else:

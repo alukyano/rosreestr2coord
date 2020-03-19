@@ -39,7 +39,7 @@ def xy2lonlat(x, y):
 
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
-REFERER = 'https://pkk5.rosreestr.ru/'
+REFERER = 'https://pkk.rosreestr.ru/'
 
 
 class TimeoutException(Exception):
@@ -50,6 +50,7 @@ def make_tile_request(url, tile_mode="direct", static_proxy="none"):
     if url:
         url = url.encode('utf-8')
         logger.debug(url)
+        logger.debug("make_tile_request")
         if tile_mode == 'private' and static_proxy != 'none':
             return make_request_with_static_proxy(url,static_proxy)
         if tile_mode == 'public':
@@ -57,7 +58,11 @@ def make_tile_request(url, tile_mode="direct", static_proxy="none"):
             if proxies and len(proxies) and proxies[0] != 'None':
                 return make_request_with_proxy(url)
         try:
-            f = urllib2.urlopen(url)
+            headers = {
+                'user-agent': USER_AGENT,
+                'referer': REFERER}
+            request = urllib2.Request(url, headers=headers)            
+            f = urllib2.urlopen(request)
             read = f.read()
             return read
         except Exception as er:
@@ -70,6 +75,7 @@ def make_request(url, with_proxy=False, static_proxy="none"):
     if url:
         url = url.encode('utf-8')
         logger.debug(url)
+        logger.debug("make_request")
         if static_proxy != 'none':
             return make_request_with_static_proxy(url,static_proxy)
         if with_proxy:
