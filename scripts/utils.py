@@ -49,8 +49,8 @@ class TimeoutException(Exception):
 def make_tile_request(url, tile_mode="direct", static_proxy="none"):
     if url:
         url = url.encode('utf-8')
-        logger.debug(url)
-        logger.debug("make_tile_request")
+        # logger.debug(url)
+        # logger.debug("make_tile_request")
         if tile_mode == 'private' and static_proxy != 'none':
             return make_request_with_static_proxy(url,static_proxy)
         if tile_mode == 'public':
@@ -74,8 +74,8 @@ def make_request(url, with_proxy=False, static_proxy="none"):
     # original function
     if url:
         url = url.encode('utf-8')
-        logger.debug(url)
-        logger.debug("make_request")
+        # logger.debug(url)
+        # logger.debug("make_request")
         if static_proxy != 'none':
             return make_request_with_static_proxy(url,static_proxy)
         if with_proxy:
@@ -98,8 +98,8 @@ def make_request(url, with_proxy=False, static_proxy="none"):
 def make_request_with_static_proxy(url,static_proxy):
     if static_proxy != "none":
         try:
-            print ("Using static proxy: [", static_proxy, "]")
-            logger.info("Using static proxy: %s", static_proxy)
+            # print ("Using static proxy: [", static_proxy, "]")
+            # logger.info("Using static proxy: %s", static_proxy)
 #            auth = urllib2.HTTPBasicAuthHandler()
             proxy =static_proxy.split("@")[1]
 #            auth_proxy = urllib2.ProxyBasicAuthHandler()

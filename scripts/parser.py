@@ -128,7 +128,7 @@ class Area:
         t = string.Template(FEATURE_INFO_URL)
         self.feature_info_url = t.substitute({"area_type": area_type})
         # 03/10/19 alukyano - added current datetime stamping into log
-        curdate = get_datetime()
+        curdate = "[" + code + "] " + get_datetime()
         if self.with_log:
             logger.info("request datetime - %s" % curdate)
 

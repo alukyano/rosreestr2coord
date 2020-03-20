@@ -341,8 +341,8 @@ class PkkAreaMerger(TileMerger, object):
                 dx, dy = self.tile_size
             code = self.clear_code
 
-            # layers = map(str, range(0, 20))
-            layers = map(str, range(6, 9))
+            layers = map(str, range(0, 20))
+            # layers = map(str, range(6, 9))
             params = {
                 "dpi": 96,
                 "transparent": "false",
@@ -355,18 +355,6 @@ class PkkAreaMerger(TileMerger, object):
                 "layerDefs": {layer: str("ID='%s'" % code) for layer in layers},
                 "f": "json"
             }
-            """params = {
-                "dpi": 96,
-                "transparent": "false",
-                "format": "png",
-                "layers": "show:%s" % ",".join(layers),
-                "bbox": ",".join(map(str, self._get_bbox_by_xy(x, y))),
-                "bboxSR": 102100,
-                "imageSR": 102100,
-                "size": "%s,%s" % (dx, dy),
-                "layerDefs": {layer: str("ID = '%s'" % code) for layer in layers},
-                "f": "json"
-            }"""
             if output_format:
                 params["format"] = output_format
             url_parts = list(urlparse.urlparse(self.url))
