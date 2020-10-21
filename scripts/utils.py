@@ -50,9 +50,11 @@ def make_tile_request(url, tile_mode="direct", static_proxy="none"):
     if url:
         url = url.encode('utf-8')
         # logger.debug(url)
-        # logger.debug("make_tile_request")
-        if tile_mode == 'private' and static_proxy != 'none':
-            return make_request_with_static_proxy(url,static_proxy)
+        logger.debug("make_tile_request")
+	#logger.debug("tile_mode=",tile_mode)
+        if static_proxy != 'none':
+            logger.debug("make_tile_request_with_static")
+	    return make_request_with_static_proxy(url,static_proxy)
         if tile_mode == 'public':
             proxies = proxy_handling.load_proxies()
             if proxies and len(proxies) and proxies[0] != 'None':
@@ -75,7 +77,7 @@ def make_request(url, with_proxy=False, static_proxy="none"):
     if url:
         url = url.encode('utf-8')
         # logger.debug(url)
-        # logger.debug("make_request")
+        logger.debug("make_request")
         if static_proxy != 'none':
             return make_request_with_static_proxy(url,static_proxy)
         if with_proxy:
@@ -124,6 +126,7 @@ def make_request_with_static_proxy(url,static_proxy):
                 'Proxy-Authorization': 'Basic ' + user_enc}
 
             request = urllib2.Request(url, headers=headers)
+	    # print (headers) 
 
             conn = urllib2.urlopen(request,timeout=3)  
 #            logger.info("URL using static proxy: %s", url)

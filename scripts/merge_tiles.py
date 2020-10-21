@@ -346,11 +346,11 @@ class PkkAreaMerger(TileMerger, object):
             params = {
                 "dpi": 96,
                 "transparent": "false",
-                "format": "PNG32",
+                "format": "png32",
                 "layers": "show:%s" % ",".join(layers),
                 "bbox": ",".join(map(str, self._get_bbox_by_xy(x, y))),
-                "bboxSR": 3857,
-                "imageSR": 3857,
+                "bboxSR": 102100,
+                "imageSR": 102100,
                 "size": "%s,%s" % (dx, dy),
                 "layerDefs": {layer: str("ID='%s'" % code) for layer in layers},
                 "f": "json"

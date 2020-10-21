@@ -260,6 +260,7 @@ class Area:
                         self.log("Area info downloaded.")
                 return feature
         except TimeoutException:
+            self.log("Area info timeout.")
             raise TimeoutException()
         except Exception as error:
             self.error(error)

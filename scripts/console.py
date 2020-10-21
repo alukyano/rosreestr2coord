@@ -27,7 +27,8 @@ def getopts():
     parser.add_argument('-c', '--code', action='store', type=str, required=False,
                         help='area cadastral number')
     parser.add_argument('-t', '--area_type', action='store', type=int, required=False, default=1,
-                        help='area types: %s' % "; ".join(["%s:%s" % (k, v) for k, v in TYPES.items()]))
+                        help='area type code')
+#                        help='area types: %s' % "; ".join(["%s:%s" % (k, v) for k, v in TYPES.items()]))
     parser.add_argument('-p', '--path', action='store', type=str, required=False,
                         help='media path')
     parser.add_argument('-o', '--output', action='store', type=str, required=False,
